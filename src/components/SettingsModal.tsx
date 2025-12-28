@@ -5,11 +5,13 @@ import { X, Settings, Moon, Bell, Shield, Palette, ChevronLeft, Check, Sun, Smar
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  currentBg?: string | null;
+  onSetBg?: (bg: string | null) => void;
 }
 
 type SettingsSection = 'main' | 'appearance' | 'alerts' | 'security' | 'branding';
 
-export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
+export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose, currentBg, onSetBg }) => {
   const [activeSection, setActiveSection] = useState<SettingsSection>('main');
   const [config, setConfig] = useState({
     theme: 'purple',
@@ -18,11 +20,35 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     companyName: 'BARBER MAPS',
   });
 
+  const bgs = ['bg-1.png', 'bg-2.png', 'bg-3.jpg', 'bg-4.jpg'];
+
   const renderSection = () => {
     switch (activeSection) {
       case 'appearance':
         return (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
+            
+            {/* Background Selection */}
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-white ml-2">Plano de Fundo (Menu)</h4>
+              <div className="grid grid-cols-3 gap-3">
+                 <div 
+                   onClick={() => onSetBg?.(null)}
+                   className={`aspect-video rounded-xl border border-white/10 bg-[#121212] flex items-center justify-center cursor-pointer hover:border-white/30 transition-all ${!currentBg ? 'ring-2 ring-primary' : ''}`}
+                 >
+                   <span className="text-[10px] uppercase font-bold text-white/30">Padrão</span>
+                 </div>
+                 {bgs.map(bg => (
+                   <div 
+                     key={bg}
+                     onClick={() => onSetBg?.(bg)}
+                     className={`aspect-video rounded-xl border border-white/10 bg-cover bg-center cursor-pointer hover:border-white/30 transition-all ${currentBg === bg ? 'ring-2 ring-primary' : ''}`}
+                     style={{ backgroundImage: `url(/backgrounds/${bg})` }}
+                   />
+                 ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               {['purple', 'blue', 'emerald', 'amber'].map((color) => (
                 <div 

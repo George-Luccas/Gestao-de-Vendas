@@ -106,6 +106,18 @@ app.get('/api/sales', async (req, res) => {
   }
 });
 
+app.delete('/api/sales/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM "Sale" WHERE id = $1 RETURNING *', [id]);
+    if (result.rowCount === 0) return res.status(404).json({ error: 'Venda não encontrada' });
+    res.json({ message: 'Venda excluída com sucesso' });
+  } catch (error) {
+    console.error('SERVER ERROR DELETE SALE:', error);
+    res.status(500).json({ error: 'Erro ao excluir venda' });
+  }
+});
+
 app.post('/api/sales', async (req, res) => {
   const { clientName, value, stage, salespersonId, description, ownerId } = req.body;
   try {

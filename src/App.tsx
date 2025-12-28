@@ -10,6 +10,9 @@ import { SalesForm } from './components/SalesForm';
 import { SalesCompetition } from './components/SalesCompetition';
 import { SettingsModal } from './components/SettingsModal';
 import { SearchModal } from './components/SearchModal';
+import { SalesValueModal } from './components/SalesValueModal';
+import { SalesHistoryModal } from './components/SalesHistoryModal';
+
 import { NotificationsPopover } from './components/NotificationsPopover';
 import { useSales, SALESPEOPLE } from './hooks/useSales';
 import { motion } from 'framer-motion';
@@ -20,7 +23,8 @@ import {
   LayoutGrid,
   Search,
   Bell,
-  Wallet
+  Wallet,
+  Menu
 } from 'lucide-react';
 
 function Dashboard() {
@@ -39,49 +43,72 @@ function Dashboard() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-
+  
+  // Advanced Features State
+  const [isValueModalOpen, setIsValueModalOpen] = useState(false);
+  const [selectedSaleForValue, setSelectedSaleForValue] = useState<{id: string, value: number} | null>(null);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  
   // Stats calculation
   const totalValue = sales.reduce((acc, s) => acc + s.value, 0);
   const totalCount = sales.length;
   const closedSales = sales.filter(s => s.stage === 'fechamento' || s.stage === 'acompanhamento').length;
   const conversionRate = totalCount > 0 ? ((closedSales / totalCount) * 100).toFixed(1) : "0";
 
+  // Background State
+  const [currentBg, setCurrentBg] = useState<string | null>(localStorage.getItem('vendas_pro_bg') || null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile Menu State
+
+  const handleSetBg = (bg: string | null) => {
+    setCurrentBg(bg);
+    if (bg) localStorage.setItem('vendas_pro_bg', bg);
+    else localStorage.removeItem('vendas_pro_bg');
+  };
+
   return (
     <div className="flex bg-[#050508] min-h-screen text-foreground font-['Outfit'] overflow-hidden selection:bg-primary/30">
-      <div className="hidden xl:block">
-        <Sidebar 
-          activeTab={activeTab} 
-          onSelectTab={(id) => setActiveTab(id)}
-          onOpenForm={() => setIsFormOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-        />
-      </div>
+      <Sidebar 
+        activeTab={activeTab}
+        currentBg={currentBg} 
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onSelectTab={(id) => {
+          if (id === 'history') setIsHistoryOpen(true);
+          else setActiveTab(id);
+        }}
+        onOpenForm={() => setIsFormOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
 
       <OfflineStatus />
 
       <main className="flex-1 ml-0 xl:ml-80 p-4 md:p-10 min-h-screen overflow-y-auto custom-scrollbar">
         <header className="mb-6 md:mb-12 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 md:gap-8">
           <div className="flex items-center justify-between w-full xl:w-auto">
-            <div className="space-y-1 md:space-y-2">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full w-fit"
+            <div className="flex items-start gap-4">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex xl:hidden items-center justify-center text-white/50 hover:bg-white/10 hover:text-white transition-all"
               >
-                <Target size={12} className="text-primary" />
-                <span className="tracking-[0.2em] uppercase text-[10px] font-black text-primary/80">VENDAS PRO BARBER MAPS</span>
-              </motion.div>
-              <h2 className="text-2xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-none">
-                {activeTab === 'ranking' ? 'COPA VENDAS' : 
-                 user?.role === 'admin' && activeTab === 'all' ? 'Dashboard Global' : 
-                 user?.role === 'admin' ? `VISÃO: ${SALESPEOPLE.find(s => s.id === Number(activeTab))?.name}` :
-                 `Olá, ${user?.name.split(' ')[0]}`}
-              </h2>
-              <p className="text-[10px] md:text-sm text-white/30 font-medium tracking-tight uppercase">Monitorando o ecossistema em tempo real.</p>
-            </div>
-
-            <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.05] flex items-center justify-center text-white/40 xl:hidden">
-              <Target size={24} className="text-primary/40" />
+                <Menu size={24} />
+              </button>
+              <div className="space-y-1 md:space-y-2">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full w-fit"
+                >
+                  <Target size={12} className="text-primary" />
+                  <span className="tracking-[0.2em] uppercase text-[10px] font-black text-primary/80">VENDAS PRO BARBER MAPS</span>
+                </motion.div>
+                <h2 className="text-2xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-none">
+                  {activeTab === 'ranking' ? 'COPA VENDAS' : 
+                   user?.role === 'admin' && activeTab === 'all' ? 'Dashboard Global' : 
+                   user?.role === 'admin' ? `VISÃO: ${SALESPEOPLE.find(s => s.id === Number(activeTab))?.name}` :
+                   `Olá, ${user?.name.split(' ')[0]}`}
+                </h2>
+                <p className="text-[10px] md:text-sm text-white/30 font-medium tracking-tight uppercase">Monitorando o ecossistema em tempo real.</p>
+              </div>
             </div>
           </div>
 
@@ -186,7 +213,18 @@ function Dashboard() {
                 sales={sales} 
                 onMoveSale={moveSale} 
                 onDeleteSale={deleteSale} 
-                onUpdateValue={updateSaleValue}
+                onUpdateValue={(id, val) => {
+                   if (val === -1) {
+                     // Open Manual Modal
+                     const sale = sales.find(s => s.id === id);
+                     if (sale) {
+                       setSelectedSaleForValue({ id, value: sale.value });
+                       setIsValueModalOpen(true);
+                     }
+                   } else {
+                     updateSaleValue(id, val);
+                   }
+                }}
               />
             </motion.div>
           )}
@@ -201,6 +239,8 @@ function Dashboard() {
         <SettingsModal 
           isOpen={isSettingsOpen}
           onClose={() => setIsSettingsOpen(false)}
+          currentBg={currentBg}
+          onSetBg={handleSetBg}
         />
 
         <SearchModal
@@ -220,6 +260,25 @@ function Dashboard() {
           onOpenForm={() => setIsFormOpen(true)}
           onOpenSearch={() => setIsSearchOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
+        />
+
+        {/* Advanced Features Modals */}
+        <SalesValueModal 
+          isOpen={isValueModalOpen}
+          onClose={() => setIsValueModalOpen(false)}
+          initialValue={selectedSaleForValue?.value || 0}
+          onConfirm={(newValue) => {
+            if (selectedSaleForValue) {
+              updateSaleValue(selectedSaleForValue.id, newValue);
+              setIsValueModalOpen(false);
+            }
+          }}
+        />
+
+        <SalesHistoryModal 
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          sales={sales}
         />
       </main>
     </div>

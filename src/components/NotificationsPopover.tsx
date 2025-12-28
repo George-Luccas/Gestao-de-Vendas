@@ -52,7 +52,13 @@ export const NotificationsPopover: React.FC<NotificationsPopoverProps> = ({ isOp
               ))}
             </div>
             
-            <button className="w-full py-4 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] hover:text-white hover:bg-white/[0.05] transition-all">
+            <button 
+              onClick={() => {
+                onClose();
+                alert('Histórico completo de notificações em breve!');
+              }}
+              className="w-full py-4 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] hover:text-white hover:bg-white/[0.05] transition-all"
+            >
               Ver Todas as Notificações
             </button>
           </motion.div>

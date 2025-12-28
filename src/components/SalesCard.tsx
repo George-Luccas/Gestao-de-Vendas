@@ -11,7 +11,10 @@ interface SalesCardProps {
   onMove?: (id: string, newStage: Stage) => void;
 }
 
+import { useAuth } from '../context/AuthContext';
+
 export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateValue, onMove }) => {
+  const { user } = useAuth();
   const salesperson = SALESPEOPLE.find(v => v.id === sale.salespersonId);
   const currentStageIndex = STAGES.findIndex(s => s.id === sale.stage);
   const nextStage = STAGES[currentStageIndex + 1];
@@ -53,15 +56,30 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
           </div>
 
           <div className="flex gap-2 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-             <button className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+             <button 
+               onClick={() => onUpdateValue?.(sale.id, -1)}
+               className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+               title="Edição Rápida (Valor)"
+             >
                <Edit2 size={14} className="text-white/40" />
              </button>
-             <button 
-               onClick={() => onDelete?.(sale.id)}
-               className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors"
-             >
-               <Trash2 size={14} className="text-red-400" />
-             </button>
+             {user?.role === 'admin' ? (
+               <button 
+                 onClick={() => onDelete?.(sale.id)}
+                 className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                 title="Excluir (Admin)"
+               >
+                 <Trash2 size={14} className="text-red-400" />
+               </button>
+             ) : (
+                <button 
+                  onClick={() => onDelete?.(sale.id)}
+                  className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
+                  title="Cancelar Pedido"
+                >
+                  <X size={14} className="text-white/40" />
+                </button>
+             )}
           </div>
         </div>
 
@@ -74,9 +92,12 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
              <div>
                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">Saldo Negociado</p>
                <div className="flex items-center gap-4">
-                 <p className="text-2xl font-black text-white tracking-tighter antialiased">
+                 <button 
+                   onClick={() => onUpdateValue?.(sale.id, -1)} // -1 signal to open modal
+                   className="text-2xl font-black text-white tracking-tighter antialiased hover:text-primary transition-colors text-left"
+                 >
                    {formattedValue}
-                 </p>
+                 </button>
                  <div className="flex gap-1.5">
                    <button 
                      onClick={() => onUpdateValue?.(sale.id, sale.value - 1000)}

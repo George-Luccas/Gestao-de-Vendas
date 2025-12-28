@@ -19,6 +19,7 @@ interface SidebarProps {
   onOpenSettings: () => void;
   isOpen?: boolean;
   onClose?: () => void;
+  currentBg?: string | null;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
@@ -27,7 +28,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenForm, 
   onOpenSettings,
   isOpen,
-  onClose
+  onClose,
+  currentBg
 }) => {
   const { user, logout } = useAuth();
 
@@ -48,7 +50,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside className={`
         w-80 h-[100dvh] fixed top-0 glass-panel border-r border-white/5 p-6 md:p-8 flex flex-col z-50 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]
         ${isOpen ? 'left-0' : '-left-80 xl:left-0'}
-      `}>
+      `}
+      style={currentBg ? {
+        backgroundImage: `url(/backgrounds/${currentBg})`,
+        backgroundSize: '280px', // Adjusted for pattern effect
+        backgroundRepeat: 'repeat', 
+        backgroundPosition: 'center top',
+      } : {}}
+      >
+        {/* Dark overlay for readability over bg image */}
+        {currentBg && <div className="absolute inset-0 bg-black/70 z-[-1]" />}
+        
         <div className="flex items-center justify-between mb-10 md:mb-14 px-2">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center neon-glow">
@@ -120,6 +132,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Plus size={20} className="group-hover:rotate-90 transition-transform duration-500" />
           <span>Nova Venda</span>
         </button>
+
+        {user?.role === 'admin' && (
+           <button 
+             onClick={() => onSelectTab('history')}
+             className={`w-full h-12 rounded-xl border border-white/5 flex items-center justify-center gap-2 transition-all duration-300 font-bold text-sm mb-4 ${activeTab === 'history' ? 'bg-white/10 text-white' : 'bg-transparent text-white/40 hover:bg-white/5 hover:text-white'}`}
+           >
+             <LayoutDashboard size={18} />
+             <span>Histórico / Caixa</span>
+           </button>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <button 
