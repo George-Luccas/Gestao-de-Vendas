@@ -18,15 +18,28 @@ app.use(express.json());
 
 // Auth Routes
 app.post('/api/register', async (req, res) => {
-  const { name, email, role, salespersonId } = req.body;
+  const { name, email, role, password } = req.body;
+  
   try {
+    let finalSalespersonId = null;
+
+    if (role === 'seller') {
+      const maxIdResult = await pool.query('SELECT MAX("salespersonId") as max_id FROM "User" WHERE role = $1', ['seller']);
+      const currentMax = maxIdResult.rows[0].max_id || 0;
+      finalSalespersonId = currentMax + 1;
+    }
+
     const id = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Note: Password is not currently being stored or hashed as per previous context, 
+    // but the backend accepts it. If strict auth was needed we'd hash it here.
+    
     const result = await pool.query(
       `INSERT INTO "User" (id, name, email, role, "salespersonId", "updatedAt") 
        VALUES ($1, $2, $3, $4, $5, NOW())
-       ON CONFLICT (email) DO UPDATE SET name = $2, role = $4, "salespersonId" = $5, "updatedAt" = NOW()
+       ON CONFLICT (email) DO UPDATE SET name = $2, role = $4, "salespersonId" = COALESCE("User"."salespersonId", $5), "updatedAt" = NOW()
        RETURNING *`,
-      [id, name, email, role, salespersonId]
+      [id, name, email, role, finalSalespersonId]
     );
     res.json(result.rows[0]);
   } catch (error: any) {

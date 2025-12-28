@@ -14,7 +14,7 @@ export const AuthModal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<Role>('seller');
-  const [salespersonId, setSalespersonId] = useState<number>(1);
+  // const [salespersonId, setSalespersonId] = useState<number>(1); // Removed: auto-assigned by backend
   const { login, register } = useAuth();
   const [error, setError] = useState('');
 
@@ -36,7 +36,7 @@ export const AuthModal: React.FC = () => {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(name, email, password, role, role === 'seller' ? salespersonId : undefined);
+        await register(name, email, password, role);
       }
     } catch (err: any) {
       setError(err.message);
@@ -64,14 +64,13 @@ export const AuthModal: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className={`${isLogin ? 'hidden' : 'block'}`}>
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 font-bold text-xs">U</div>
               <input
                 required={!isLogin}
                 type="text"
                 placeholder="Nome Completo"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 px-4 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
               />
             </div>
           </div>
@@ -101,18 +100,7 @@ export const AuthModal: React.FC = () => {
                   <option value="admin">Administrador</option>
                 </select>
               </div>
-              {role === 'seller' && (
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-white/40 uppercase px-1">ID Vendedor</label>
-                  <select 
-                    value={salespersonId} 
-                    onChange={(e) => setSalespersonId(Number(e.target.value))}
-                    className="w-full bg-[#121216] border border-white/10 rounded-xl py-3 px-4 focus:ring-2 focus:ring-primary/50 outline-none text-sm"
-                  >
-                    {[1, 2, 3, 4].map(id => <option key={id} value={id}>Vendedor {id}</option>)}
-                  </select>
-                </div>
-              )}
+{/* ID Selector Removed (Auto-assigned) */}
             </div>
           </div>
 
@@ -135,7 +123,7 @@ export const AuthModal: React.FC = () => {
             type="submit"
             className="w-full bg-primary hover:bg-primary/80 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] mt-4"
           >
-            {isLogin ? <LogIn size={20} /> : <div className="w-5 h-5 flex items-center justify-center font-bold">U</div>}
+            {isLogin ? <LogIn size={20} /> : null}
             {isLogin ? 'Entrar Agora' : 'Finalizar Cadastro'}
           </button>
         </form>
