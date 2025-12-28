@@ -7,7 +7,7 @@ dotenv.config();
 
 const { Pool } = pg;
 const pool = new Pool({
-  connectionString: "postgresql://2152435c24526282fa673ca8ceb0eef1b0fb83bccb47fadaecf901444d009d46:sk_Jmk1lofvpfiUNhxSRsExr@db.prisma.io:5432/postgres?sslmode=require",
+  connectionString: process.env.DATABASE_URL,
 });
 
 const app = express();
@@ -142,6 +142,12 @@ app.get('/api/ranking', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+// Export for Vercel
+export default app;
+
+// Start server locally (if not in Vercel)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
