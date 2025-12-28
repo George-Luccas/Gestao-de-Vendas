@@ -5,10 +5,11 @@ import { LogIn, Mail, Lock, ShieldCheck } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
   // Initialize state based on URL parameter
-  const [isLogin, setIsLogin] = useState(() => {
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  const [isLogin] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('mode') !== 'register';
-  });
+  }); // URL-based now, ignoring setter
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
