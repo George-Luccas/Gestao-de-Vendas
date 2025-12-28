@@ -31,7 +31,7 @@ export const AuthModal: React.FC = () => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-md glass-card p-6 md:p-8 max-h-[90dvh] overflow-y-auto"
+        className="w-full max-w-md glass-card-premium bg-[#121212] p-6 md:p-8 max-h-[90dvh] overflow-y-auto"
       >
         <div className="flex justify-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center shadow-2xl shadow-primary/40">
