@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth, Role } from '../context/AuthContext';
-import { LogIn, User as UserIcon, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { LogIn, Mail, Lock, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const AuthModal: React.FC = () => {
@@ -50,7 +50,7 @@ export const AuthModal: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div className="relative">
-              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+              <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
               <input
                 required
                 type="text"
@@ -121,7 +121,7 @@ export const AuthModal: React.FC = () => {
             type="submit"
             className="w-full bg-primary hover:bg-primary/80 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] mt-4"
           >
-            {isLogin ? <LogIn size={20} /> : <UserIcon size={20} />}
+            {isLogin ? <LogIn size={20} /> : <ShieldCheck size={20} />}
             {isLogin ? 'Entrar Agora' : 'Finalizar Cadastro'}
           </button>
         </form>
