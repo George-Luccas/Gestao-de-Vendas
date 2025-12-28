@@ -110,7 +110,7 @@ export const AuthModal: React.FC = () => {
               className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 transition-all outline-none opacity-50"
               disabled
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/20">Demo (password)</span>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/20">Automático</span>
           </div>
 
           {error && <p className="text-red-400 text-xs text-center font-medium bg-red-400/10 py-2 rounded-lg">{error}</p>}

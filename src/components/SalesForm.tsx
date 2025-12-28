@@ -60,10 +60,9 @@ export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit 
           />
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-            className="w-full max-w-2xl glass-card-premium overflow-hidden rounded-3xl relative max-h-[90vh] overflow-y-auto"
+            className="w-full max-w-2xl glass-card-premium overflow-hidden rounded-3xl relative max-h-[90dvh] overflow-y-auto"
           >
             {/* Form Header */}
             <div className="p-6 md:p-10 pb-4 md:pb-4 flex justify-between items-center bg-white/5 border-b border-white/5">
@@ -87,7 +86,7 @@ export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit 
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
                         <input 
                           required
-                          className="w-full h-14 pl-12 pr-6 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-primary/40 focus:bg-white/[0.06] transition-all text-sm font-bold placeholder:text-white/10"
+                          className={`w-full h-14 pl-12 pr-6 bg-white/[0.03] border ${errors.clientName ? 'border-red-500/50' : 'border-white/10'} rounded-2xl focus:outline-none focus:border-primary/40 focus:bg-white/[0.06] transition-all text-sm font-bold placeholder:text-white/10`}
                           placeholder="Nome da empresa ou contato"
                           value={formData.clientName}
                           onChange={e => setFormData({ ...formData, clientName: e.target.value })}
@@ -103,7 +102,8 @@ export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit 
                         <input 
                           required
                           type="number"
-                          className="w-full h-14 pl-12 pr-6 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-emerald-500/40 focus:bg-white/[0.06] transition-all text-sm font-bold"
+                          data-error={!!errors.value}
+                          className={`w-full h-14 pl-12 pr-6 bg-white/[0.03] border ${errors.value ? 'border-red-500/50' : 'border-white/10'} rounded-2xl focus:outline-none focus:border-emerald-500/40 focus:bg-white/[0.06] transition-all text-sm font-bold`}
                           placeholder="0,00"
                           value={formData.value}
                           onChange={e => setFormData({ ...formData, value: e.target.value })}
