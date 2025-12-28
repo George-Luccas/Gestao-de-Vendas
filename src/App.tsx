@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { AuthProvider } from './context/AuthContext';
-import { AuthModal } from './components/AuthModal';
+import { AuthModal } from './components/AuthenticationModal';
 import { Sidebar } from './components/Sidebar';
 import { BottomNav } from './components/BottomNav';
 import { OfflineStatus } from './components/OfflineStatus';
