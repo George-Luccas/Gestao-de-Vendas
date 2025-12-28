@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth, Role } from '../context/AuthContext';
 import { LogIn, Mail, Lock, ShieldCheck } from 'lucide-react';
-import { motion } from 'framer-motion';
+// import { motion } from 'framer-motion';
 
 export const AuthModal: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  // Initialize state based on URL parameter
+  const [isLogin, setIsLogin] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') !== 'register';
+  });
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -12,6 +17,17 @@ export const AuthModal: React.FC = () => {
   const [salespersonId, setSalespersonId] = useState<number>(1);
   const { login, register } = useAuth();
   const [error, setError] = useState('');
+
+  const toggleMode = () => {
+    const newMode = isLogin ? 'register' : 'login';
+    const url = new URL(window.location.href);
+    if (newMode === 'login') {
+      url.searchParams.delete('mode');
+    } else {
+      url.searchParams.set('mode', 'register');
+    }
+    window.location.href = url.toString();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,9 +45,7 @@ export const AuthModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
+      <div 
         className="w-full max-w-md glass-card-premium bg-[#121212] p-6 md:p-8 max-h-[90dvh] overflow-y-auto"
       >
         <div className="flex justify-center mb-8">
@@ -48,11 +62,11 @@ export const AuthModal: React.FC = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!isLogin && (
+          <div className={`${isLogin ? 'hidden' : 'block'}`}>
             <div className="relative">
-              <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 font-bold text-xs">U</div>
               <input
-                required
+                required={!isLogin}
                 type="text"
                 placeholder="Nome Completo"
                 value={name}
@@ -60,7 +74,7 @@ export const AuthModal: React.FC = () => {
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
               />
             </div>
-          )}
+          </div>
 
           <div className="relative">
             <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
@@ -74,7 +88,7 @@ export const AuthModal: React.FC = () => {
             />
           </div>
 
-          {!isLogin && (
+          <div className={`${isLogin ? 'hidden' : 'block'}`}>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-white/40 uppercase px-1">Cargo</label>
@@ -100,7 +114,7 @@ export const AuthModal: React.FC = () => {
                 </div>
               )}
             </div>
-          )}
+          </div>
 
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
@@ -121,20 +135,20 @@ export const AuthModal: React.FC = () => {
             type="submit"
             className="w-full bg-primary hover:bg-primary/80 py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] mt-4"
           >
-            {isLogin ? <LogIn size={20} /> : <ShieldCheck size={20} />}
+            {isLogin ? <LogIn size={20} /> : <div className="w-5 h-5 flex items-center justify-center font-bold">U</div>}
             {isLogin ? 'Entrar Agora' : 'Finalizar Cadastro'}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-white/5 text-center">
+        <div className="mt-8 text-center">
           <button 
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-white/40 hover:text-white transition-colors"
+            onClick={toggleMode}
+            className="text-white/40 hover:text-primary transition-colors text-sm"
           >
             {isLogin ? 'Não tem uma conta? Cadastre-se' : 'Já possui conta? Faça o Login'}
           </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
