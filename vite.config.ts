@@ -17,6 +17,10 @@ export default defineConfig({
         description: 'Gestão de Vendas Pro para ecossistema Barber Maps',
         theme_color: '#050508',
         background_color: '#050508',
+        display: 'standalone',
+        start_url: '/',
+        scope: '/',
+        orientation: 'portrait',
         icons: [
           {
             src: 'pwa-icon.png',
