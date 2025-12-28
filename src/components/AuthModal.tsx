@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 export const AuthModal: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<Role>('seller');
   const [salespersonId, setSalespersonId] = useState<number>(1);
@@ -17,9 +18,9 @@ export const AuthModal: React.FC = () => {
     setError('');
     try {
       if (isLogin) {
-        await login(email);
+        await login(email, password);
       } else {
-        await register(name, email, role, role === 'seller' ? salespersonId : undefined);
+        await register(name, email, password, role, role === 'seller' ? salespersonId : undefined);
       }
     } catch (err: any) {
       setError(err.message);
@@ -107,10 +108,11 @@ export const AuthModal: React.FC = () => {
               required
               type="password"
               placeholder="Senha"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 transition-all outline-none opacity-50"
-              disabled
+              className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 focus:ring-2 focus:ring-primary/50 transition-all outline-none"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/20">Automático</span>
+            {/* <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/20">Manual</span> */}
           </div>
 
           {error && <p className="text-red-400 text-xs text-center font-medium bg-red-400/10 py-2 rounded-lg">{error}</p>}

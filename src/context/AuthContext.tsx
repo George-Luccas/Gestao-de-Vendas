@@ -12,8 +12,8 @@ export interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string) => Promise<void>;
-  register: (name: string, email: string, role: Role, salespersonId?: number) => Promise<void>;
+  login: (email: string, password?: string) => Promise<void>;
+  register: (name: string, email: string, password?: string, role?: Role, salespersonId?: number) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   error: string | null;
@@ -34,13 +34,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string) => {
+  const login = async (email: string, password?: string) => {
     setError(null);
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('http://localhost:3001/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -53,13 +53,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (name: string, email: string, role: Role, salespersonId?: number) => {
+  const register = async (name: string, email: string, password?: string, role: Role = 'seller', salespersonId?: number) => {
     setError(null);
     try {
-      const res = await fetch('/api/register', {
+      const res = await fetch('http://localhost:3001/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, role, salespersonId }),
+        body: JSON.stringify({ name, email, password, role, salespersonId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
