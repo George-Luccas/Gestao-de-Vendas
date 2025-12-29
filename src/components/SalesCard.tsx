@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Trash2, Edit2, TrendingUp, User as UserIcon, ChevronRight } from 'lucide-react';
+import { Calendar, Trash2, Edit2, TrendingUp, User as UserIcon, ChevronRight, X } from 'lucide-react';
 import { SALESPEOPLE, STAGES } from '../hooks/useSales';
 import type { Sale, Stage } from '../hooks/useSales';
 
@@ -98,20 +98,7 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
                  >
                    {formattedValue}
                  </button>
-                 <div className="flex gap-1.5">
-                   <button 
-                     onClick={() => onUpdateValue?.(sale.id, sale.value - 1000)}
-                     className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/20 transition-all text-white/40 hover:text-red-400 font-bold"
-                   >
-                     -
-                   </button>
-                   <button 
-                     onClick={() => onUpdateValue?.(sale.id, sale.value + 1000)}
-                     className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-emerald-500/20 hover:border-emerald-500/20 transition-all text-white/40 hover:text-emerald-400 font-bold"
-                   >
-                     +
-                   </button>
-                 </div>
+
                </div>
              </div>
              <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5">

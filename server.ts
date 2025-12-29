@@ -17,6 +17,16 @@ app.use(cors());
 app.use(express.json());
 
 // Auth Routes
+app.get('/api/sellers', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, name, "salespersonId" FROM "User" WHERE role = $1 ORDER BY "salespersonId" ASC', ['seller']);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('SERVER ERROR FETCH SELLERS:', error);
+    res.status(500).json({ error: 'Erro ao buscar vendedores' });
+  }
+});
+
 app.post('/api/register', async (req, res) => {
   const { name, email, role, password } = req.body;
   
@@ -45,6 +55,24 @@ app.post('/api/register', async (req, res) => {
   } catch (error: any) {
     console.error('SERVER ERROR REGISTER:', error);
     res.status(500).json({ error: error.message || 'Erro ao registrar usuário' });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Optional: Delete associated sales first if needed, or rely on CASCADE if configured.
+    // For now, we just delete the user.
+    const result = await pool.query('DELETE FROM "User" WHERE "salespersonId" = $1 RETURNING *', [id]);
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+    
+    res.json({ message: 'Usuário excluído com sucesso' });
+  } catch (error: any) {
+    console.error('SERVER ERROR DELETE USER:', error);
+    res.status(500).json({ error: 'Erro ao excluir usuário' });
   }
 });
 
@@ -140,6 +168,7 @@ app.get('/api/ranking', async (req, res) => {
     const result = await pool.query(
       `SELECT "salespersonId" as id, SUM(value) as "totalValue", COUNT(*) as count 
        FROM "Sale" 
+       WHERE stage IN ('fechamento', 'acompanhamento')
        GROUP BY "salespersonId" 
        ORDER BY "totalValue" DESC`
     );

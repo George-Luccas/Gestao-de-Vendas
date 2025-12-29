@@ -15,12 +15,20 @@ export interface Sale {
   ownerId: string;
 }
 
+export interface Salesperson {
+  id: number;
+  name: string;
+  color: string;
+}
+
 export const STAGES: { id: Stage; label: string }[] = [
   { id: 'cadastro', label: 'Cadastro' },
   { id: 'negociacao', label: 'Negociação' },
   { id: 'fechamento', label: 'Fechamento' },
   { id: 'acompanhamento', label: 'Acompanhamento' },
 ];
+
+const COLORS = ['#a855f7', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#6366f1'];
 
 export const SALESPEOPLE = [
   { id: 1, name: 'Vendedor 1', color: '#a855f7' },
@@ -31,8 +39,26 @@ export const SALESPEOPLE = [
 
 export function useSales(user: User | null) {
   const [sales, setSales] = useState<Sale[]>([]);
+  const [salespeople, setSalespeople] = useState<Salesperson[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [loading, setLoading] = useState(false);
+
+  const fetchSalespeople = useCallback(async () => {
+    try {
+      const res = await fetch('/api/sellers');
+      if (res.ok) {
+        const data = await res.json();
+        const mapped = data.map((s: any, i: number) => ({
+          id: s.salespersonId,
+          name: s.name,
+          color: COLORS[i % COLORS.length]
+        }));
+        setSalespeople(mapped);
+      }
+    } catch (error) {
+      console.error('Error fetching sellers:', error);
+    }
+  }, []);
 
   const fetchSales = useCallback(async () => {
     if (!user) return;
@@ -52,6 +78,10 @@ export function useSales(user: User | null) {
       setLoading(false);
     }
   }, [user, activeTab]);
+
+  useEffect(() => {
+    fetchSalespeople();
+  }, [fetchSalespeople]);
 
   useEffect(() => {
     fetchSales();
@@ -88,12 +118,8 @@ export function useSales(user: User | null) {
 
   const deleteSale = async (id: string) => {
     try {
-      const res = await fetch(`/api/sales/${id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        setSales(prev => prev.filter(s => s.id !== id));
-      }
+      const res = await fetch(`/api/sales/${id}`, { method: 'DELETE' });
+      if (res.ok) setSales(prev => prev.filter(s => s.id !== id));
     } catch (error) {
       console.error('Error deleting sale:', error);
     }
@@ -106,11 +132,20 @@ export function useSales(user: User | null) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newValue }),
       });
-      if (res.ok) {
-        setSales(prev => prev.map(s => s.id === id ? { ...s, value: newValue } : s));
-      }
+      if (res.ok) setSales(prev => prev.map(s => s.id === id ? { ...s, value: newValue } : s));
     } catch (error) {
       console.error('Error updating sale value:', error);
+    }
+  };
+
+  const deleteSalesperson = async (id: number) => {
+    try {
+      const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setSalespeople(prev => prev.filter(s => s.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting salesperson:', error);
     }
   };
 
@@ -121,8 +156,10 @@ export function useSales(user: User | null) {
     moveSale,
     deleteSale,
     updateSaleValue,
+    deleteSalesperson,
     activeTab,
     setActiveTab,
-    refreshSales: fetchSales
+    refreshSales: fetchSales,
+    salespeople
   };
 }

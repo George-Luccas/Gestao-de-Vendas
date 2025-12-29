@@ -12,9 +12,10 @@ import { SettingsModal } from './components/SettingsModal';
 import { SearchModal } from './components/SearchModal';
 import { SalesValueModal } from './components/SalesValueModal';
 import { SalesHistoryModal } from './components/SalesHistoryModal';
+import { SalesGoals } from './components/SalesGoals';
 
 import { NotificationsPopover } from './components/NotificationsPopover';
-import { useSales, SALESPEOPLE } from './hooks/useSales';
+import { useSales } from './hooks/useSales';
 import { motion } from 'framer-motion';
 import { 
   TrendingUp, 
@@ -36,7 +37,9 @@ function Dashboard() {
     deleteSale,
     updateSaleValue,
     activeTab, 
-    setActiveTab 
+    setActiveTab,
+    salespeople,
+    deleteSalesperson
   } = useSales(user);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -103,9 +106,10 @@ function Dashboard() {
                 </motion.div>
                 <h2 className="text-2xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-none">
                   {activeTab === 'ranking' ? 'COPA VENDAS' : 
+                   activeTab === 'goals' ? 'GESTÃO DE METAS' :
                    user?.role === 'admin' && activeTab === 'all' ? 'Dashboard Global' : 
-                   user?.role === 'admin' ? `VISÃO: ${SALESPEOPLE.find(s => s.id === Number(activeTab))?.name}` :
-                   `Olá, ${user?.name.split(' ')[0]}`}
+                   user?.role === 'admin' ? `VISÃO: ${salespeople.find(s => s.id === Number(activeTab))?.name || 'Vendedor'}` :
+                   `Olá, ${user?.name?.split(' ')[0] || 'Visitante'}`}
                 </h2>
                 <p className="text-[10px] md:text-sm text-white/30 font-medium tracking-tight uppercase">Monitorando o ecossistema em tempo real.</p>
               </div>
@@ -114,7 +118,7 @@ function Dashboard() {
 
           <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 w-full xl:w-auto">
             <div className="flex -space-x-3 order-2 md:order-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-              {SALESPEOPLE.map(v => (
+              {salespeople.map(v => (
                  <div 
                    key={v.id} 
                    className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full border-2 border-[#050508] bg-white/5 flex items-center justify-center text-[10px] font-bold text-white/40 ring-2 ring-white/5 cursor-pointer hover:border-primary transition-all"
@@ -152,7 +156,7 @@ function Dashboard() {
                 onClick={() => setIsSettingsOpen(true)}
                 className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-primary/80 to-purple-600 flex items-center justify-center shadow-lg shadow-primary/20 ring-2 ring-primary/20 cursor-pointer hover:scale-105 transition-all"
               >
-                <span className="font-black text-white text-xs md:text-sm">{user?.name[0]}</span>
+                <span className="font-black text-white text-xs md:text-sm">{user?.name?.[0] || 'U'}</span>
               </div>
             </div>
           </div>
@@ -195,7 +199,9 @@ function Dashboard() {
         </section>
 
         <div className="flex flex-col gap-8">
-          {activeTab === 'ranking' ? (
+          {activeTab === 'goals' ? (
+             <SalesGoals sales={sales} salespeople={salespeople} onDeleteSalesperson={deleteSalesperson} />
+          ) : activeTab === 'ranking' ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

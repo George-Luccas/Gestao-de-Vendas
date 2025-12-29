@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, DollarSign, TrendingUp, ShoppingBag } from 'lucide-react';
+import { X, Calendar, ShoppingBag } from 'lucide-react';
 import { Sale } from '../hooks/useSales';
 
 interface SalesHistoryModalProps {

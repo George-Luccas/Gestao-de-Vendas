@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Star, TrendingUp } from 'lucide-react';
+import { Trophy, Medal, Star, TrendingUp, Calendar, Target, BarChart3, Wallet, ShieldAlert, ChevronsDown } from 'lucide-react';
+import { useSales } from '../hooks/useSales';
 
 interface RankItem {
   id: number;
@@ -9,22 +10,10 @@ interface RankItem {
   name?: string;
 }
 
-const SELLER_NAMES: Record<number, string> = {
-  1: 'Vendedor 1',
-  2: 'Vendedor 2',
-  3: 'Vendedor 3',
-  4: 'Vendedor 4'
-};
-
-const SELLER_COLORS: Record<number, string> = {
-  1: '#a855f7',
-  2: '#3b82f6',
-  3: '#10b981',
-  4: '#f59e0b'
-};
-
 export const SalesCompetition: React.FC = () => {
   const [ranking, setRanking] = useState<RankItem[]>([]);
+  const [isRegulationOpen, setIsRegulationOpen] = useState(false);
+  const { salespeople } = useSales(null); // Fetch salespeople names
 
   useEffect(() => {
     // In a real app, this would fetch from /api/ranking
@@ -80,8 +69,8 @@ export const SalesCompetition: React.FC = () => {
               <div 
                 className="w-12 h-12 rounded-2xl flex items-center justify-center text-white relative"
                 style={{ 
-                  backgroundColor: `${SELLER_COLORS[item.id] || '#8b5cf6'}20`, 
-                  border: `1px solid ${SELLER_COLORS[item.id] || '#8b5cf6'}40` 
+                  backgroundColor: `${salespeople.find(s => s.id === item.id)?.color || '#8b5cf6'}20`, 
+                  border: `1px solid ${salespeople.find(s => s.id === item.id)?.color || '#8b5cf6'}40` 
                 }}
               >
                 {index === 0 ? <Medal size={24} className="text-amber-400" /> : 
@@ -90,12 +79,12 @@ export const SalesCompetition: React.FC = () => {
                 
                 <div 
                   className="absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-[#020205]"
-                  style={{ backgroundColor: SELLER_COLORS[item.id] || '#8b5cf6' }}
+                  style={{ backgroundColor: salespeople.find(s => s.id === item.id)?.color || '#8b5cf6' }}
                 />
               </div>
 
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-xs md:text-sm text-white truncate">{SELLER_NAMES[item.id] || `Consultor ${item.id}`}</h4>
+                <h4 className="font-bold text-xs md:text-sm text-white truncate">{salespeople.find(s => s.id === item.id)?.name || `Consultor ${item.id}`}</h4>
                 <div className="flex items-center gap-2 mt-0.5">
                   <TrendingUp size={10} className="text-emerald-500" />
                   <span className="text-[9px] md:text-[10px] font-bold text-white/40 uppercase">{item.count} Negócios</span>
@@ -111,7 +100,7 @@ export const SalesCompetition: React.FC = () => {
                     initial={{ width: 0 }}
                     animate={{ width: ranking[0]?.totalValue ? `${(item.totalValue / ranking[0].totalValue) * 100}%` : '0%' }}
                     className="h-full rounded-full"
-                    style={{ backgroundColor: SELLER_COLORS[item.id] || '#8b5cf6' }}
+                    style={{ backgroundColor: salespeople.find(s => s.id === item.id)?.color || '#8b5cf6' }}
                   />
                 </div>
               </div>
@@ -124,9 +113,106 @@ export const SalesCompetition: React.FC = () => {
         )}
       </div>
 
-      <button className="w-full mt-8 py-4 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white hover:bg-white/5 transition-all">
+      <button 
+        onClick={() => setIsRegulationOpen(true)}
+        className="w-full mt-8 py-4 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white hover:bg-white/5 transition-all"
+      >
         Ver Regulamento Completo
       </button>
+
+      {/* Regulation Modal */}
+      {isRegulationOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#0e0e11] border border-white/10 rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-y-auto custom-scrollbar shadow-2xl"
+          >
+            <div className="p-6 md:p-8 space-y-6">
+              <div className="flex justify-between items-start">
+                <div>
+                   <h2 className="text-2xl font-black text-white uppercase tracking-tighter">Regulamento</h2>
+                   <p className="text-xs font-bold text-amber-500 uppercase tracking-widest">Copa de Vendas – Edição Trimestral</p>
+                </div>
+                <button 
+                  onClick={() => setIsRegulationOpen(false)}
+                  className="p-2 rounded-xl hover:bg-white/5 text-white/40 hover:text-white transition-all"
+                >
+                  <ChevronsDown size={24} className="rotate-180" />
+                </button>
+              </div>
+
+              <div className="space-y-6 text-sm text-white/70 font-light leading-relaxed">
+                <section>
+                  <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Trophy size={14} className="text-primary"/> 1. Objetivo</h3>
+                  <p>A Copa de Vendas visa incentivar a alta performance da equipe comercial, premiando o colaborador (ou equipe) que atingir os melhores resultados de conversão e faturamento dentro do período estipulado.</p>
+                </section>
+
+                <section>
+                   <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Calendar size={14} className="text-primary"/> 2. Período da Competição</h3>
+                   <p>A competição terá duração de 3 (três) meses, iniciando no dia <strong className="text-white">01/02/2026</strong> e encerrando-se no dia <strong className="text-white">30/04/2026</strong>.</p>
+                </section>
+
+                <section>
+                   <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Target size={14} className="text-primary"/> 3. Critérios de Participação</h3>
+                   <ul className="list-disc pl-5 space-y-1">
+                     <li>Estão elegíveis todos os consultores/vendedores ativos na empresa durante todo o trimestre.</li>
+                     <li>É necessário o cumprimento de pelo menos <strong className="text-white">75% da meta Trimestral</strong> para que seja contemplado o vencedor (o não comprimento da meta prorroga automaticamente até o abatimento da mesma).</li>
+                   </ul>
+                </section>
+
+                <section>
+                   <h3 className="font-bold text-white mb-2 flex items-center gap-2"><BarChart3 size={14} className="text-primary"/> 4. Critérios de Pontuação e Vencedor</h3>
+                   <p>O vencedor será definido com base nos seguintes indicadores (KPIs):</p>
+                   <ul className="list-disc pl-5 space-y-1 mt-2">
+                     <li><strong>Volume Total de Vendas (R$):</strong> Peso principal.</li>
+                     <li><strong>Taxa de Conversão:</strong> Porcentagem de leads convertidos em vendas.</li>
+                     <li><strong>Ticket Médio:</strong> Valor médio por venda realizada.</li>
+                   </ul>
+                   <p className="mt-2 text-xs text-white/40 italic">Nota: Em caso de empate, o critério de desempate será quem atingiu o resultado com o menor número de cancelamentos/estornos (Chargebacks).</p>
+                </section>
+
+                <section>
+                   <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Medal size={14} className="text-primary"/> 5. Da Premiação</h3>
+                   <p>O grande vencedor da Copa de Vendas fará jus a um bônus extraordinário equivalente a:</p>
+                   <div className="p-4 my-2 rounded-xl bg-gradient-to-r from-primary/20 to-transparent border border-primary/20">
+                      <p className="text-lg font-black text-white">25% (vinte e cinco por cento)</p>
+                      <p className="text-xs uppercase tracking-widest text-primary">sobre o Lucro Líquido do Faturamento Trimestral</p>
+                   </div>
+                   <h4 className="font-bold text-white text-xs uppercase mt-3 mb-1">5.1. Definição de Lucro para Fins de Prêmio</h4>
+                   <p>Para fins deste regulamento, o "Lucro do Faturamento" será calculado subtraindo-se do faturamento bruto:</p>
+                   <ul className="list-disc pl-5 space-y-1 mt-1 text-xs">
+                     <li>Impostos diretos sobre a venda.</li>
+                     <li>Custos operacionais diretos do serviço/produto.</li>
+                     <li>Taxas de processamento de pagamentos.</li>
+                   </ul>
+                </section>
+
+                <section>
+                   <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Wallet size={14} className="text-primary"/> 6. Prazo de Pagamento</h3>
+                   <p>O prêmio será calculado após o fechamento contábil do trimestre e pago ao vencedor até o dia 7 do mês subsequente ao encerramento da Copa, via <strong>Pix</strong>.</p>
+                </section>
+
+                 <section>
+                   <h3 className="font-bold text-white mb-2 flex items-center gap-2"><ShieldAlert size={14} className="text-primary"/> 7. Disposições Gerais</h3>
+                   <ul className="list-disc pl-5 space-y-1">
+                     <li>Tentativas de fraude, "vendas fakes" ou comportamento antiético resultarão na desclassificação imediata do participante.</li>
+                     <li>A diretoria reserva-se o direito de auditar todas as vendas computadas para a premiação.</li>
+                     <li>As vendas só serão contabilizadas após validação via comprovante.</li>
+                   </ul>
+                </section>
+              </div>
+
+               <button 
+                  onClick={() => setIsRegulationOpen(false)}
+                  className="w-full py-4 rounded-xl bg-primary text-white font-black uppercase tracking-widest hover:bg-primary-dark transition-all"
+                >
+                  Entendi
+                </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
