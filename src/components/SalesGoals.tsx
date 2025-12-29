@@ -1,17 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Target, Save, DollarSign, Trash2, CheckCircle2 } from 'lucide-react';
+import { Target, Save, DollarSign, Trash2, CheckCircle2, Trophy } from 'lucide-react';
 import { Sale, Salesperson } from '../hooks/useSales';
 
 interface SalesGoalsProps {
   sales: Sale[];
   salespeople: Salesperson[];
   onDeleteSalesperson?: (id: number) => void;
+  generalGoal: number;
+  onUpdateGeneralGoal: (value: number) => void;
 }
 
-export const SalesGoals: React.FC<SalesGoalsProps> = ({ sales, salespeople, onDeleteSalesperson }) => {
+export const SalesGoals: React.FC<SalesGoalsProps> = ({ sales, salespeople, onDeleteSalesperson, generalGoal, onUpdateGeneralGoal }) => {
   const [goals, setGoals] = useState<{ [key: number]: number }>({});
   const [saved, setSaved] = useState(false);
+  const [localGeneralGoal, setLocalGeneralGoal] = useState<number>(0);
+
+  useEffect(() => {
+    setLocalGeneralGoal(generalGoal);
+  }, [generalGoal]);
 
   useEffect(() => {
     const savedGoals = localStorage.getItem('vendas_pro_goals');
@@ -27,6 +34,7 @@ export const SalesGoals: React.FC<SalesGoalsProps> = ({ sales, salespeople, onDe
 
   const handleSave = () => {
     localStorage.setItem('vendas_pro_goals', JSON.stringify(goals));
+    onUpdateGeneralGoal(localGeneralGoal);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -36,6 +44,10 @@ export const SalesGoals: React.FC<SalesGoalsProps> = ({ sales, salespeople, onDe
       .filter(s => s.salespersonId === id && (s.stage === 'fechamento' || s.stage === 'acompanhamento'))
       .reduce((acc, curr) => acc + curr.value, 0);
   };
+  
+  const totalSalesAll = sales
+      .filter(s => s.stage === 'fechamento' || s.stage === 'acompanhamento')
+      .reduce((acc, curr) => acc + curr.value, 0);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -62,6 +74,64 @@ export const SalesGoals: React.FC<SalesGoalsProps> = ({ sales, salespeople, onDe
           {saved ? 'Salvo!' : 'Salvar Metas'}
         </button>
       </div>
+
+      {/* General Goal Section */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-panel p-8 rounded-[2rem] border border-amber-500/20 relative overflow-hidden group bg-gradient-to-br from-amber-500/5 to-transparent"
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 blur-[100px] bg-amber-500/10 rounded-full -mr-32 -mt-32" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+           <div className="flex-1">
+             <div className="flex items-center gap-3 mb-2">
+               <div className="p-3 rounded-xl bg-amber-500/20 text-amber-500">
+                 <Trophy size={24} />
+               </div>
+               <div>
+                 <h3 className="text-xl font-bold text-white uppercase tracking-tight">Meta Geral da Equipe</h3>
+                 <p className="text-xs text-white/40 font-bold uppercase tracking-widest">Objetivo Coletivo</p>
+               </div>
+             </div>
+             
+             <div className="mt-6 space-y-2">
+               <div className="flex justify-between text-xs font-black text-white/50 uppercase tracking-wider">
+                  <span>Progresso Atual</span>
+                  <span>{localGeneralGoal > 0 ? ((totalSalesAll / localGeneralGoal) * 100).toFixed(1) : 0}%</span>
+               </div>
+               <div className="h-4 w-full bg-black/40 rounded-full overflow-hidden border border-white/5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min(localGeneralGoal > 0 ? (totalSalesAll / localGeneralGoal) * 100 : 0, 100)}%` }}
+                    className="h-full rounded-full bg-gradient-to-r from-amber-600 to-yellow-400 relative"
+                  >
+                     <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                  </motion.div>
+               </div>
+               <div className="flex justify-between items-center mt-2">
+                 <span className="text-2xl font-black text-white">{formatCurrency(totalSalesAll)}</span>
+                 <span className="text-sm text-white/40 font-bold uppercase">de {formatCurrency(localGeneralGoal)}</span>
+               </div>
+             </div>
+           </div>
+
+           <div className="w-full md:w-64 bg-black/20 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
+              <label className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2 block">
+                Definir Meta Geral (R$)
+              </label>
+              <div className="relative">
+                <DollarSign size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-amber-500" />
+                <input 
+                  type="number" 
+                  value={localGeneralGoal}
+                  onChange={(e) => setLocalGeneralGoal(Number(e.target.value))}
+                  className="w-full h-12 bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 text-white font-mono font-bold outline-none focus:border-amber-500/50 transition-all text-right"
+                />
+              </div>
+           </div>
+        </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {salespeople.map(seller => {

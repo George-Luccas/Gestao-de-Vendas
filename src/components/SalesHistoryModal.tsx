@@ -14,7 +14,7 @@ export const SalesHistoryModal: React.FC<SalesHistoryModalProps> = ({ isOpen, on
   useEffect(() => {
     if (isOpen) {
       // Filter for closed sales
-      const closed = sales.filter(s => s.stage === 'fechamento').sort((a, b) => 
+      const closed = sales.filter(s => s.stage === 'fechamento' || s.stage === 'acompanhamento').sort((a, b) => 
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
       );
       setHistorySales(closed);

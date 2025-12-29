@@ -147,19 +147,29 @@ app.delete('/api/sales/:id', async (req, res) => {
 });
 
 app.post('/api/sales', async (req, res) => {
+  console.log('DEBUG: Received Sale Request', req.body);
   const { clientName, value, stage, salespersonId, description, ownerId } = req.body;
+  
+  if (!ownerId) {
+    console.error('DEBUG: Missing ownerId');
+    return res.status(400).json({ error: 'Missing ownerId' });
+  }
+
   try {
     const id = `sale_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('DEBUG: Attempting to insert sale', { id, clientName, value, stage, salespersonId, ownerId });
+    
     const result = await pool.query(
       `INSERT INTO "Sale" (id, "clientName", value, stage, "salespersonId", description, "ownerId", "updatedAt", "createdAt") 
        VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW()) 
        RETURNING *`,
       [id, clientName, Number(value), stage, Number(salespersonId), description, ownerId]
     );
+    console.log('DEBUG: Sale inserted successfully', result.rows[0]);
     res.json(result.rows[0]);
   } catch (error: any) {
     console.error('SERVER ERROR CREATE SALE:', error);
-    res.status(500).json({ error: 'Erro ao criar venda' });
+    res.status(500).json({ error: 'Erro ao criar venda: ' + error.message });
   }
 });
 
@@ -180,6 +190,31 @@ app.get('/api/ranking', async (req, res) => {
   } catch (error: any) {
     console.error('SERVER ERROR RANKING:', error);
     res.status(500).json({ error: 'Erro ao gerar ranking' });
+  }
+});
+
+app.get('/api/general-goal', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM "GeneralGoal" ORDER BY "createdAt" DESC LIMIT 1');
+    res.json(result.rows[0] || null);
+  } catch (error) {
+    console.error('SERVER ERROR FETCH GOAL:', error);
+    res.status(500).json({ error: 'Erro ao buscar meta geral' });
+  }
+});
+
+app.post('/api/general-goal', async (req, res) => {
+  const { value } = req.body;
+  try {
+    const id = `goal_${Date.now()}`;
+    const result = await pool.query(
+      'INSERT INTO "GeneralGoal" (id, value, "createdAt", "updatedAt") VALUES ($1, $2, NOW(), NOW()) RETURNING *',
+      [id, Number(value)]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('SERVER ERROR SET GOAL:', error);
+    res.status(500).json({ error: 'Erro ao definir meta geral' });
   }
 });
 

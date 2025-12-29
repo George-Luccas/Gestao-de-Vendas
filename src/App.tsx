@@ -28,6 +28,8 @@ import {
   Menu
 } from 'lucide-react';
 
+import { Celebration } from './components/Celebration';
+
 function Dashboard() {
   const { user } = useAuth();
   const { 
@@ -39,7 +41,9 @@ function Dashboard() {
     activeTab, 
     setActiveTab,
     salespeople,
-    deleteSalesperson
+    deleteSalesperson,
+    generalGoal,
+    updateGeneralGoal
   } = useSales(user);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -54,6 +58,10 @@ function Dashboard() {
   
   // Stats calculation
   const totalValue = sales.reduce((acc, s) => acc + s.value, 0);
+  const realizedRevenue = sales
+    .filter(s => s.stage === 'fechamento' || s.stage === 'acompanhamento')
+    .reduce((acc, s) => acc + s.value, 0);
+
   const totalCount = sales.length;
   const closedSales = sales.filter(s => s.stage === 'fechamento' || s.stage === 'acompanhamento').length;
   const conversionRate = totalCount > 0 ? ((closedSales / totalCount) * 100).toFixed(1) : "0";
@@ -70,6 +78,7 @@ function Dashboard() {
 
   return (
     <div className="flex bg-[#050508] min-h-screen text-foreground font-['Outfit'] overflow-hidden selection:bg-primary/30">
+      <Celebration currentTotal={realizedRevenue} generalGoal={generalGoal} />
       <Sidebar 
         activeTab={activeTab}
         currentBg={currentBg} 
@@ -167,8 +176,8 @@ function Dashboard() {
         <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
            <StatCard 
               icon={<TrendingUp size={24} className="text-emerald-400" />} 
-              label="Volume Total" 
-              value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalValue)}
+              label="Caixa / Faturamento" 
+              value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(realizedRevenue)}
               trend="+12.5%"
               color="emerald"
               onClick={() => setActiveTab('all')}
@@ -202,7 +211,13 @@ function Dashboard() {
 
         <div className="flex flex-col gap-8">
           {activeTab === 'goals' ? (
-             <SalesGoals sales={sales} salespeople={salespeople} onDeleteSalesperson={deleteSalesperson} />
+             <SalesGoals 
+               sales={sales} 
+               salespeople={salespeople} 
+               onDeleteSalesperson={deleteSalesperson}
+               generalGoal={generalGoal}
+               onUpdateGeneralGoal={updateGeneralGoal} 
+              />
           ) : activeTab === 'ranking' ? (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}

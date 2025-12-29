@@ -28,6 +28,13 @@ async function setup() {
         "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
         "ownerId" TEXT NOT NULL REFERENCES "User"(id)
       );
+
+      CREATE TABLE IF NOT EXISTS "GeneralGoal" (
+        id TEXT PRIMARY KEY,
+        value DOUBLE PRECISION NOT NULL,
+        "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        "updatedAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
     `);
     console.log('Tables created successfully!');
   } catch (err) {

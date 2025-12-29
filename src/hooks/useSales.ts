@@ -149,6 +149,42 @@ export function useSales(user: User | null) {
     }
   };
 
+  const [generalGoal, setGeneralGoal] = useState<number>(0);
+
+  const fetchGeneralGoal = useCallback(async () => {
+    try {
+      const res = await fetch('/api/general-goal');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.value) {
+          setGeneralGoal(data.value);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching general goal:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchGeneralGoal();
+  }, [fetchGeneralGoal]);
+
+  const updateGeneralGoal = async (value: number) => {
+    try {
+      const res = await fetch('/api/general-goal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setGeneralGoal(data.value);
+      }
+    } catch (error) {
+      console.error('Error updating general goal:', error);
+    }
+  };
+
   return {
     sales,
     loading,
@@ -160,6 +196,9 @@ export function useSales(user: User | null) {
     activeTab,
     setActiveTab,
     refreshSales: fetchSales,
-    salespeople
+    salespeople,
+    generalGoal,
+    updateGeneralGoal,
+    refreshGoal: fetchGeneralGoal
   };
 }

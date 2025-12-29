@@ -33,3 +33,10 @@ model Sale {
   owner         User     @relation("SalesOwner", fields: [ownerId], references: [id])
   ownerId       String
 }
+
+model GeneralGoal {
+  id        String   @id @default(cuid())
+  value     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
