@@ -40,7 +40,7 @@ export const SalesCompetition: React.FC = () => {
   }, []);
 
   return (
-    <div className="glass-panel rounded-3xl p-6 border border-white/5">
+    <div className="glass-panel rounded-3xl p-6 border border-white/5 pb-24">
       <div className="flex items-center gap-3 mb-6 md:mb-8">
         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center border border-amber-500/20">
           <Trophy className="text-amber-500" size={20} />
