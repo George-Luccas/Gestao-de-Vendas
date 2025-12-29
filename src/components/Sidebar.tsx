@@ -1,6 +1,4 @@
-import React from 'react';
 import { 
-  BarChart3, 
   Settings, 
   LogOut, 
   Plus, 
@@ -64,8 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         
         <div className="flex items-center justify-between mb-10 md:mb-14 px-2">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary to-accent flex items-center justify-center neon-glow">
-              <BarChart3 className="text-white" size={24} />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center p-2 shadow-lg shadow-primary/10 neon-glow">
+              <img src="/pwa-icon.png" alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-xl font-black text-white tracking-tighter uppercase">Barber<span className="text-primary italic">Maps</span></h1>
