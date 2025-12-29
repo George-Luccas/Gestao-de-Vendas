@@ -40,8 +40,8 @@ export const SalesCompetition: React.FC = () => {
   }, []);
 
   return (
-    <div className="glass-panel rounded-3xl p-6 border border-white/5 pb-24">
-      <div className="flex items-center gap-3 mb-6 md:mb-8">
+    <div className="glass-panel rounded-3xl p-6 border border-white/5 pb-6 h-[calc(100vh-180px)] md:h-auto flex flex-col">
+      <div className="flex items-center gap-3 mb-6 md:mb-8 shrink-0">
         <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center border border-amber-500/20">
           <Trophy className="text-amber-500" size={20} />
         </div>
@@ -51,7 +51,7 @@ export const SalesCompetition: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-2">
         {ranking && ranking.length > 0 ? (
           ranking.map((item, index) => (
             <motion.div
@@ -115,7 +115,7 @@ export const SalesCompetition: React.FC = () => {
 
       <button 
         onClick={() => setIsRegulationOpen(true)}
-        className="w-full mt-8 py-4 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white hover:bg-white/5 transition-all"
+        className="w-full mt-4 py-4 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:text-white hover:bg-white/5 transition-all shrink-0"
       >
         Ver Regulamento Completo
       </button>

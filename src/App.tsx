@@ -163,6 +163,7 @@ function Dashboard() {
         </header>
 
         {/* Status Grid */}
+        {activeTab !== 'ranking' && (
         <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
            <StatCard 
               icon={<TrendingUp size={24} className="text-emerald-400" />} 
@@ -197,6 +198,7 @@ function Dashboard() {
               onClick={() => setActiveTab('all')}
             />
         </section>
+        )}
 
         <div className="flex flex-col gap-8">
           {activeTab === 'goals' ? (
