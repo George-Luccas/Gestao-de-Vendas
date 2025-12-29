@@ -21,6 +21,7 @@ import {
   Search, 
   Bell, 
   Menu,
+  Target,
   TrendingUp,
   CheckCircle2,
   LayoutGrid,
@@ -107,15 +108,10 @@ function Dashboard() {
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex items-center gap-4"
+                  className="flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full w-fit"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center p-2 shadow-lg shadow-primary/10">
-                    <img src="/pwa-icon.png" alt="Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <div>
-                    <span className="tracking-[0.2em] uppercase text-[10px] font-black text-primary/80 block mb-1">VENDAS PRO</span>
-                    <span className="text-xl font-black text-white italic tracking-tighter">BARBER MAPS</span>
-                  </div>
+                  <Target size={12} className="text-primary" />
+                  <span className="tracking-[0.2em] uppercase text-[10px] font-black text-primary/80">VENDAS PRO BARBER MAPS</span>
                 </motion.div>
                 <h2 className="text-2xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-none">
                   {activeTab === 'ranking' ? 'COPA VENDAS' : 
