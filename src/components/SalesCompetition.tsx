@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Star, TrendingUp, Calendar, Target, BarChart3, Wallet, ShieldAlert, ChevronsDown } from 'lucide-react';
-import { useSales } from '../hooks/useSales';
+import { Salesperson } from '../hooks/useSales';
 
 interface RankItem {
   id: number;
@@ -10,10 +10,13 @@ interface RankItem {
   name?: string;
 }
 
-export const SalesCompetition: React.FC = () => {
+interface SalesCompetitionProps {
+  salespeople: Salesperson[];
+}
+
+export const SalesCompetition: React.FC<SalesCompetitionProps> = ({ salespeople }) => {
   const [ranking, setRanking] = useState<RankItem[]>([]);
   const [isRegulationOpen, setIsRegulationOpen] = useState(false);
-  const { salespeople } = useSales(null); // Fetch salespeople names
 
   useEffect(() => {
     // In a real app, this would fetch from /api/ranking

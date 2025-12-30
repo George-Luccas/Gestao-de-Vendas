@@ -82,6 +82,7 @@ function Dashboard() {
       <Celebration currentTotal={realizedRevenue} generalGoal={generalGoal} />
       <Sidebar 
         activeTab={activeTab}
+        salespeople={salespeople}
         currentBg={currentBg} 
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -228,7 +229,7 @@ function Dashboard() {
               animate={{ opacity: 1, scale: 1 }}
               className="max-w-4xl mx-auto w-full"
             >
-              <SalesCompetition />
+              <SalesCompetition salespeople={salespeople} />
             </motion.div>
           ) : (
             <motion.div

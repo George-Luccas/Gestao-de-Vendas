@@ -10,10 +10,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { SALESPEOPLE } from '../hooks/useSales';
+import { Salesperson } from '../hooks/useSales';
 
 interface SidebarProps {
   activeTab: string;
+  salespeople: Salesperson[];
   onSelectTab: (id: string) => void;
   onOpenForm: () => void;
   onOpenSettings: () => void;
@@ -24,6 +25,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ 
   activeTab, 
+  salespeople,
   onSelectTab, 
   onOpenForm, 
   onOpenSettings,
@@ -105,7 +107,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <section>
             <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] mb-6 px-4">Vendedores</p>
             <nav className="space-y-1">
-              {SALESPEOPLE.map((v) => (
+              {salespeople.map((v) => (
                 <SidebarItem 
                   key={v.id}
                   icon={
