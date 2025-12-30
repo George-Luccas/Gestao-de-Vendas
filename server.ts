@@ -299,6 +299,38 @@ app.get('/api/visits', async (req, res) => {
     }
 });
 
+app.patch('/api/visits/:id', async (req, res) => {
+    const { id } = req.params;
+    const { date, status, notes } = req.body;
+    
+    try {
+        let query = 'UPDATE "Visit" SET "updatedAt" = NOW()';
+        const params = [id];
+        let paramCount = 1;
+        
+        if (date) {
+            paramCount++;
+            query += `, date = $${paramCount}`;
+            params.push(date);
+        }
+        
+        // Add other fields if useful for future
+        
+        query += ` WHERE id = $1 RETURNING *`;
+        
+        const result = await pool.query(query, params);
+        
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Visita não encontrada' });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error: any) {
+        console.error('SERVER ERROR UPDATE VISIT:', error);
+        res.status(500).json({ error: 'Erro ao atualizar visita' });
+    }
+});
+
 app.get('/api/notifications', async (req, res) => {
     // In a real app we'd filter by logged in user ID. 
     // Here we'll just fetch all or filter if query param provided
