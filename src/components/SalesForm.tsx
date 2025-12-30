@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, User, DollarSign, FileText, ChevronRight } from 'lucide-react';
-import { STAGES, SALESPEOPLE } from '../hooks/useSales';
+import { STAGES } from '../hooks/useSales';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saleSchema } from '../utils/validation';
 
@@ -8,14 +8,16 @@ interface SalesFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (sale: any) => void;
+  salespeople: { id: number; name: string }[];
+  user: any; // Using any to avoid importing User type if not strictly needed, or import it. Ideally import User.
 }
 
-export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit }) => {
+export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit, salespeople, user }) => {
   const [formData, setFormData] = useState({
     clientName: '',
     value: '',
     stage: 'cadastro',
-    salespersonId: 1,
+    salespersonId: user?.role === 'seller' ? user.salespersonId : (salespeople[0]?.id || 1),
     description: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -43,7 +45,13 @@ export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit 
       value: Number(formData.value),
       createdAt: new Date().toISOString(),
     });
-    setFormData({ clientName: '', value: '', stage: 'cadastro', salespersonId: 1, description: '' });
+    setFormData({ 
+      clientName: '', 
+      value: '', 
+      stage: 'cadastro', 
+      salespersonId: user?.role === 'seller' ? user.salespersonId : (salespeople[0]?.id || 1), 
+      description: '' 
+    });
     onClose();
   };
 
@@ -131,8 +139,9 @@ export const SalesForm: React.FC<SalesFormProps> = ({ isOpen, onClose, onSubmit 
                        className="w-full h-14 px-6 bg-white/[0.03] border border-white/10 rounded-2xl focus:outline-none focus:border-primary/40 focus:bg-white/[0.06] transition-all text-sm font-bold appearance-none cursor-pointer"
                        value={formData.salespersonId}
                        onChange={e => setFormData({ ...formData, salespersonId: Number(e.target.value) })}
+                       disabled={user?.role === 'seller'}
                      >
-                       {SALESPEOPLE.map(v => <option key={v.id} value={v.id} className="bg-[#0f0f15]">{v.name}</option>)}
+                       {salespeople.map(v => <option key={v.id} value={v.id} className="bg-[#0f0f15]">{v.name}</option>)}
                      </select>
                   </div>
                </div>

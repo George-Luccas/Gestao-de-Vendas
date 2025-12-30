@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Trash2, Edit2, TrendingUp, User as UserIcon, ChevronRight, X } from 'lucide-react';
+import { Calendar, Trash2, Edit2, TrendingUp, User as UserIcon, ChevronRight } from 'lucide-react';
 import { SALESPEOPLE, STAGES } from '../hooks/useSales';
 import type { Sale, Stage } from '../hooks/useSales';
 
@@ -55,7 +55,7 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
             </h4>
           </div>
 
-          <div className="flex gap-2 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+          <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-4 md:group-hover:translate-x-0 transition-all duration-300">
              <button 
                onClick={() => onUpdateValue?.(sale.id, -1)}
                className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -63,7 +63,7 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
              >
                <Edit2 size={14} className="text-white/40" />
              </button>
-             {user?.role === 'admin' ? (
+             {user?.role === 'admin' && (
                <button 
                  onClick={() => onDelete?.(sale.id)}
                  className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center hover:bg-red-500/20 transition-colors"
@@ -71,14 +71,6 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
                >
                  <Trash2 size={14} className="text-red-400" />
                </button>
-             ) : (
-                <button 
-                  onClick={() => onDelete?.(sale.id)}
-                  className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
-                  title="Cancelar Pedido"
-                >
-                  <X size={14} className="text-white/40" />
-                </button>
              )}
           </div>
         </div>

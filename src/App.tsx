@@ -257,6 +257,8 @@ function Dashboard() {
           isOpen={isFormOpen} 
           onClose={() => setIsFormOpen(false)} 
           onSubmit={addSale} 
+          salespeople={salespeople}
+          user={user}
         />
 
         <SettingsModal 

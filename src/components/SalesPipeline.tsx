@@ -84,7 +84,7 @@ export const SalesPipeline: React.FC<SalesPipelineProps> = ({ sales, onMoveSale,
                     />
                     
                     {/* Move Controls Hover Overlay */}
-                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 translate-x-4 group-hover/card:translate-x-0 transition-all z-20">
+                    <div className="absolute -right-4 top-1/2 -translate-y-1/2 flex-col gap-2 opacity-0 group-hover/card:opacity-100 translate-x-4 group-hover/card:translate-x-0 transition-all z-20 hidden md:flex">
                       {index > 0 && (
                         <button 
                           onClick={() => onMoveSale(sale.id, STAGES[index - 1].id as Stage)}
