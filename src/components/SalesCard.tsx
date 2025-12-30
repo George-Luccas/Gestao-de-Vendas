@@ -55,7 +55,7 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
             </h4>
           </div>
 
-          <div className="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:translate-x-4 md:group-hover:translate-x-0 transition-all duration-300">
+          <div className="flex gap-2 opacity-100 translate-x-0 md:opacity-0 md:translate-x-4 md:group-hover:opacity-100 md:group-hover:translate-x-0 transition-all duration-300">
              <button 
                onClick={() => onUpdateValue?.(sale.id, -1)}
                className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors"
