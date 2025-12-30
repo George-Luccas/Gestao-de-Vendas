@@ -25,7 +25,8 @@ import {
   TrendingUp,
   CheckCircle2,
   LayoutGrid,
-  Wallet
+  Wallet,
+  Crown
 } from 'lucide-react';
 
 import { Celebration } from './components/Celebration';
@@ -112,12 +113,15 @@ function Dashboard() {
                 >
                   <Target size={12} className="text-primary" />
                   <span className="tracking-[0.2em] uppercase text-[10px] font-black text-primary/80">VENDAS PRO BARBER MAPS</span>
+                  {user?.role === 'admin' && activeTab !== 'ranking' && activeTab !== 'goals' && activeTab !== 'all' && activeTab !== 'history' && !isNaN(Number(activeTab)) && (
+                     <RankingBadge salespersonId={Number(activeTab)} />
+                  )}
                 </motion.div>
                 <h2 className="text-2xl md:text-5xl font-black tracking-tighter text-white uppercase italic leading-none">
                   {activeTab === 'ranking' ? 'COPA VENDAS' : 
                    activeTab === 'goals' ? 'GESTÃO DE METAS' :
-                   user?.role === 'admin' && activeTab === 'all' ? 'Dashboard Global' : 
-                   user?.role === 'admin' ? `VISÃO: ${salespeople.find(s => s.id === Number(activeTab))?.name || 'Vendedor'}` :
+                   activeTab === 'all' && user?.role === 'admin' ? 'Dashboard Global' :
+                   !isNaN(Number(activeTab)) ? `VISÃO: ${salespeople.find(s => s.id === Number(activeTab))?.name || 'Vendedor'}` :
                    `Olá, ${user?.name?.split(' ')[0] || 'Visitante'}`}
                 </h2>
                 <p className="text-[10px] md:text-sm text-white/30 font-medium tracking-tight uppercase">Monitorando o ecossistema em tempo real.</p>
@@ -368,6 +372,31 @@ function App() {
     <AuthProvider>
       <AppContent />
     </AuthProvider>
+  );
+}
+
+function RankingBadge({ salespersonId }: { salespersonId: number }) {
+  const [rank, setRank] = React.useState<{ position: number, total: number } | null>(null);
+
+  React.useEffect(() => {
+    fetch('/api/ranking').then(res => res.json()).then(data => {
+      const idx = data.findIndex((r: any) => r.id === salespersonId);
+      if (idx !== -1) {
+        setRank({ position: idx + 1, total: data[idx].totalValue });
+      }
+    });
+  }, [salespersonId]);
+
+  if (!rank) return null;
+
+  return (
+    <div className="flex items-center gap-2 ml-4">
+      <div className="w-1 h-3 bg-white/10 rounded-full" />
+      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+        <Crown size={10} className="text-emerald-500" />
+        <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">#{rank.position} na Copa</span>
+      </div>
+    </div>
   );
 }
 

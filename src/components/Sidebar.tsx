@@ -116,7 +116,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   } 
                   label={v.name} 
                   active={activeTab === String(v.id)} 
-                  onClick={() => onSelectTab(String(v.id))} 
+                  onClick={() => {
+                    onSelectTab(String(v.id));
+                    onClose?.();
+                  }} 
                 />
               ))}
             </nav>

@@ -67,7 +67,7 @@ export function useSales(user: User | null) {
       const query = new URLSearchParams({
         userId: user.id,
         role: user.role,
-        salespersonId: user.role === 'seller' ? String(user.salespersonId) : activeTab === 'all' ? '' : activeTab,
+        salespersonId: (activeTab !== 'all' && activeTab !== 'ranking' && activeTab !== 'goals' && activeTab !== 'history') ? activeTab : (user.role === 'seller' ? String(user.salespersonId) : ''),
       });
       const res = await fetch(`/api/sales?${query}`);
       const data = await res.json();

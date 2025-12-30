@@ -121,10 +121,14 @@ app.get('/api/sales', async (req, res) => {
   try {
     let query = 'SELECT * FROM "Sale"';
     let params = [];
-    if (role === 'seller' && salespersonId) {
+    
+    // Filter if salespersonId is provided (for sellers aiming at themselves, or admins aiming at specific sellers)
+    // We check if it's a valid number to avoid filtering by "all" or empty string
+    if (salespersonId && !isNaN(Number(salespersonId))) {
       query += ' WHERE "salespersonId" = $1';
       params.push(Number(salespersonId));
     }
+    
     query += ' ORDER BY "createdAt" DESC';
     const result = await pool.query(query, params);
     res.json(result.rows);
