@@ -13,6 +13,7 @@ import { SearchModal } from './components/SearchModal';
 import { SalesValueModal } from './components/SalesValueModal';
 import { SalesHistoryModal } from './components/SalesHistoryModal';
 import { SalesGoals } from './components/SalesGoals';
+import { PostSalesDetails } from './components/PostSalesDetails';
 
 import { NotificationsPopover } from './components/NotificationsPopover';
 import { useSales } from './hooks/useSales';
@@ -231,6 +232,17 @@ function Dashboard() {
             >
               <SalesCompetition salespeople={salespeople} />
             </motion.div>
+          ) : activeTab === 'post-sales' ? (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="w-full"
+              >
+                 <PostSalesDetails 
+                    salespersonId={user?.role === 'seller' ? (user.salespersonId || 0) : (Number(activeTab) || 0)} 
+                    onBack={() => setActiveTab('all')}
+                 />
+              </motion.div>
           ) : (
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -241,6 +253,7 @@ function Dashboard() {
                 sales={sales} 
                 onMoveSale={moveSale} 
                 onDeleteSale={deleteSale} 
+                onOpenPostSales={() => setActiveTab('post-sales')}
                 onUpdateValue={(id, val) => {
                    if (val === -1) {
                      // Open Manual Modal

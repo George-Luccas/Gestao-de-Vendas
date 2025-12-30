@@ -222,6 +222,105 @@ app.post('/api/general-goal', async (req, res) => {
   }
 });
 
+// Visit & Notification Routes
+app.post('/api/visits/schedule', async (req, res) => {
+  const { clientName, salespersonId, saleId } = req.body;
+  
+  try {
+    // Logic: Schedule within next 30 days, max 2 visits per day per salesperson
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 1); // Start tomorrow
+    
+    let scheduledDate = null;
+    
+    // Check next 30 days
+    for (let i = 0; i < 30; i++) {
+        const checkDate = new Date(startDate);
+        checkDate.setDate(startDate.getDate() + i);
+        
+        // Skip Sundays (0)
+        if (checkDate.getDay() === 0) continue;
+        
+        // Count existing visits for this salesperson on this date
+        // Note: In a real app we'd query by exact date range (start of day to end of day)
+        // For simplicity/demo with SQLite/Postgres date string matching:
+        const dateStr = checkDate.toISOString().split('T')[0];
+        
+        const countResult = await pool.query(
+          'SELECT COUNT(*) FROM "Visit" WHERE "salespersonId" = $1 AND DATE(date) = DATE($2)',
+          [Number(salespersonId), checkDate]
+        );
+        
+        const count = parseInt(countResult.rows[0].count);
+        
+        if (count < 2) {
+            scheduledDate = checkDate;
+            break;
+        }
+    }
+    
+    if (!scheduledDate) {
+        return res.status(400).json({ error: 'Não foi possível agendar uma visita nos próximos 30 dias.' });
+    }
+    
+    // Create Visit
+    const visitId = `visit_${Date.now()}`;
+    const visitResult = await pool.query(
+      'INSERT INTO "Visit" (id, date, "clientName", "salespersonId", "saleId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *',
+      [visitId, scheduledDate, clientName, Number(salespersonId), saleId]
+    );
+    
+    // Create Notification
+    const notifId = `notif_${Date.now()}`;
+    await pool.query(
+      'INSERT INTO "Notification" (id, type, title, description, "userId", "createdAt", read) VALUES ($1, $2, $3, $4, $5, NOW(), false)',
+      [notifId, 'visit', 'Nova Visita Agendada', `Visita pós-venda para ${clientName} agendada para ${scheduledDate.toLocaleDateString('pt-BR')}`, String(salespersonId)] // Using salespersonId as userId for simplicity in this model
+    );
+    
+    res.json({ visit: visitResult.rows[0], message: 'Visita agendada com sucesso!' });
+
+  } catch (error: any) {
+    console.error('SERVER ERROR SCHEDULE VISIT:', error);
+    res.status(500).json({ error: 'Erro ao agendar visita: ' + error.message });
+  }
+});
+
+app.get('/api/visits', async (req, res) => {
+    const { salespersonId } = req.query;
+    try {
+        const result = await pool.query(
+            'SELECT * FROM "Visit" WHERE "salespersonId" = $1 ORDER BY date ASC',
+            [Number(salespersonId)]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('SERVER ERROR FETCH VISITS:', error);
+        res.status(500).json({ error: 'Erro ao buscar visitas' });
+    }
+});
+
+app.get('/api/notifications', async (req, res) => {
+    // In a real app we'd filter by logged in user ID. 
+    // Here we'll just fetch all or filter if query param provided
+    try {
+        const result = await pool.query('SELECT * FROM "Notification" ORDER BY "createdAt" DESC LIMIT 20');
+        res.json(result.rows);
+    } catch (error) {
+         console.error('SERVER ERROR FETCH NOTIFICATIONS:', error);
+         res.status(500).json({ error: 'Erro ao buscar notificações' });
+    }
+});
+
+app.patch('/api/notifications/:id/read', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await pool.query('UPDATE "Notification" SET read = true WHERE id = $1', [id]);
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao atualizar notificação' });
+    }
+});
+
 // Export for Vercel
 export default app;
 
