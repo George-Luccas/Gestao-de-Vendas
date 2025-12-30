@@ -136,7 +136,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {user?.role === 'admin' && (
            <>
              <button 
-               onClick={() => onSelectTab('goals')}
+               onClick={() => {
+                 onSelectTab('goals');
+                 onClose?.();
+               }}
                className={`w-full h-12 rounded-xl border border-white/5 flex items-center justify-center gap-2 transition-all duration-300 font-bold text-sm mb-4 ${activeTab === 'goals' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-transparent text-white/40 hover:bg-white/5 hover:text-white'}`}
              >
                <Target size={18} />
@@ -144,7 +147,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
              </button>
 
              <button 
-               onClick={() => onSelectTab('history')}
+               onClick={() => {
+                 onSelectTab('history');
+                 onClose?.();
+               }}
                className={`w-full h-12 rounded-xl border border-white/5 flex items-center justify-center gap-2 transition-all duration-300 font-bold text-sm mb-4 ${activeTab === 'history' ? 'bg-white/10 text-white' : 'bg-transparent text-white/40 hover:bg-white/5 hover:text-white'}`}
              >
                <LayoutDashboard size={18} />
