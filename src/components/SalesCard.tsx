@@ -110,15 +110,32 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
              </div>
           </div>
 
-          {nextStage && (
-             <button 
-               onClick={() => onMove?.(sale.id, nextStage.id as Stage)}
-               className="w-full py-3 md:py-4 rounded-xl md:rounded-2xl bg-primary/10 border border-primary/20 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 group/btn shadow-lg shadow-primary/5"
-             >
-               <span>PROGREDIR PARA {nextStage.label}</span>
-               <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-             </button>
-           )}
+          {/* Navigation Controls */}
+          <div className="flex gap-3">
+             {currentStageIndex > 0 && (
+                <button 
+                  onClick={() => {
+                     const prevStage = STAGES[currentStageIndex - 1];
+                     onMove?.(sale.id, prevStage.id as Stage);
+                  }}
+                  className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl bg-white/[0.03] border border-white/5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 group/back ${!nextStage ? 'flex-1' : 'w-1/3'}`}
+                  title={`Voltar para ${STAGES[currentStageIndex - 1].label}`}
+                >
+                  <ChevronRight size={14} className="rotate-180 group-hover/back:-translate-x-1 transition-transform" />
+                  <span className={nextStage ? "hidden sm:inline" : "inline"}>VOLTAR</span>
+                </button>
+             )}
+
+             {nextStage && (
+                <button 
+                  onClick={() => onMove?.(sale.id, nextStage.id as Stage)}
+                  className="flex-[2] py-3 md:py-4 rounded-xl md:rounded-2xl bg-primary/10 border border-primary/20 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-primary hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2 group/btn shadow-lg shadow-primary/5"
+                >
+                  <span>{nextStage.label}</span>
+                  <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+             )}
+          </div>
         </div>
       </div>
     </motion.div>
