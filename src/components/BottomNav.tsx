@@ -13,8 +13,6 @@ interface BottomNavProps {
   onSelectTab: (id: string) => void;
   onOpenForm: () => void;
   onOpenSettings: () => void;
-  onOpenForm: () => void;
-  onOpenSettings: () => void;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({ 
