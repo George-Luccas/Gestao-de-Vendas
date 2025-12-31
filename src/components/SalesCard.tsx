@@ -111,18 +111,18 @@ export const SalesCard: React.FC<SalesCardProps> = ({ sale, onDelete, onUpdateVa
           </div>
 
           {/* Navigation Controls */}
-          <div className="flex gap-3">
+          <div className="flex gap-3 mt-4">
              {currentStageIndex > 0 && (
                 <button 
                   onClick={() => {
                      const prevStage = STAGES[currentStageIndex - 1];
                      onMove?.(sale.id, prevStage.id as Stage);
                   }}
-                  className={`flex-1 py-3 md:py-4 rounded-xl md:rounded-2xl bg-white/[0.03] border border-white/5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/40 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2 group/back ${!nextStage ? 'flex-1' : 'w-1/3'}`}
+                  className={`py-3 md:py-4 rounded-xl md:rounded-2xl bg-white/10 border border-white/20 text-[10px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-white/20 transition-all flex items-center justify-center gap-2 group/back ${!nextStage ? 'w-full' : 'flex-1'}`}
                   title={`Voltar para ${STAGES[currentStageIndex - 1].label}`}
                 >
                   <ChevronRight size={14} className="rotate-180 group-hover/back:-translate-x-1 transition-transform" />
-                  <span className={nextStage ? "hidden sm:inline" : "inline"}>VOLTAR</span>
+                  <span>VOLTAR</span>
                 </button>
              )}
 
