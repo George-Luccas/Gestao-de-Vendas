@@ -311,10 +311,17 @@ app.post('/api/general-goal', async (req, res) => {
 app.get('/api/visits', async (req, res) => {
     const { salespersonId } = req.query;
     try {
-        const result = await pool.query(
-            'SELECT * FROM "Visit" WHERE "salespersonId" = $1 ORDER BY date ASC',
-            [Number(salespersonId)]
-        );
+        let query = 'SELECT * FROM "Visit"';
+        let params = [];
+
+        if (salespersonId && Number(salespersonId) > 0) {
+            query += ' WHERE "salespersonId" = $1';
+            params.push(Number(salespersonId));
+        }
+
+        query += ' ORDER BY date ASC';
+
+        const result = await pool.query(query, params);
         res.json(result.rows);
     } catch (error) {
         console.error('SERVER ERROR FETCH VISITS:', error);
