@@ -57,6 +57,7 @@ function Dashboard() {
   const [isValueModalOpen, setIsValueModalOpen] = useState(false);
   const [selectedSaleForValue, setSelectedSaleForValue] = useState<{id: string, value: number} | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [postSalesTargetId, setPostSalesTargetId] = useState<number | null>(null);
   
   // Stats calculation
   const totalValue = sales.reduce((acc, s) => acc + s.value, 0);
@@ -232,6 +233,9 @@ function Dashboard() {
             >
               <SalesCompetition salespeople={salespeople} />
             </motion.div>
+                     
+                  />
+              </motion.div>
           ) : activeTab === 'post-sales' ? (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
@@ -239,8 +243,15 @@ function Dashboard() {
                 className="w-full"
               >
                  <PostSalesDetails 
-                    salespersonId={user?.role === 'seller' ? (user.salespersonId || 0) : (Number(activeTab) || 0)} 
-                    onBack={() => setActiveTab('all')}
+                    salespersonId={
+                        user?.role === 'seller' 
+                        ? (user.salespersonId || 0) 
+                        : (postSalesTargetId || (Number(activeTab) || 0))
+                    } 
+                    onBack={() => {
+                        setActiveTab(postSalesTargetId ? String(postSalesTargetId) : 'all');
+                        setPostSalesTargetId(null);
+                    }}
                  />
               </motion.div>
           ) : (
@@ -253,7 +264,11 @@ function Dashboard() {
                 sales={sales} 
                 onMoveSale={moveSale} 
                 onDeleteSale={deleteSale} 
-                onOpenPostSales={() => setActiveTab('post-sales')}
+                onOpenPostSales={() => {
+                    const currentId = !isNaN(Number(activeTab)) ? Number(activeTab) : 0;
+                    setPostSalesTargetId(currentId);
+                    setActiveTab('post-sales');
+                }}
                 onUpdateValue={(id, val) => {
                    if (val === -1) {
                      // Open Manual Modal
@@ -270,6 +285,8 @@ function Dashboard() {
             </motion.div>
           )}
         </div>
+
+
 
         <SalesForm 
           isOpen={isFormOpen} 
