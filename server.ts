@@ -76,11 +76,69 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+// Helper function to schedule visit
+async function scheduleVisit(clientName: string, salespersonId: number, saleId: string) {
+    // Logic: Schedule within next 30 days, max 2 visits per day per salesperson
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 1); // Start tomorrow
+    
+    let scheduledDate = null;
+    
+    // Check next 30 days
+    for (let i = 0; i < 30; i++) {
+        const checkDate = new Date(startDate);
+        checkDate.setDate(startDate.getDate() + i);
+        
+        // Skip Sundays (0)
+        if (checkDate.getDay() === 0) continue;
+        
+        // Count existing visits for this salesperson on this date
+        const dateStr = checkDate.toISOString().split('T')[0];
+        
+        const countResult = await pool.query(
+          'SELECT COUNT(*) FROM "Visit" WHERE "salespersonId" = $1 AND DATE(date) = DATE($2)',
+          [Number(salespersonId), checkDate]
+        );
+        
+        const count = parseInt(countResult.rows[0].count);
+        
+        if (count < 2) {
+            scheduledDate = checkDate;
+            break;
+        }
+    }
+    
+    if (!scheduledDate) {
+        throw new Error('Não foi possível agendar uma visita nos próximos 30 dias.');
+    }
+    
+    // Create Visit
+    const visitId = `visit_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+    const visitResult = await pool.query(
+      'INSERT INTO "Visit" (id, date, "clientName", "salespersonId", "saleId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *',
+      [visitId, scheduledDate, clientName, Number(salespersonId), saleId]
+    );
+    
+    // Create Notification
+    const notifId = `notif_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+    await pool.query(
+      'INSERT INTO "Notification" (id, type, title, description, "userId", "createdAt", read) VALUES ($1, $2, $3, $4, $5, NOW(), false)',
+      [notifId, 'visit', 'Nova Visita Agendada', `Visita pós-venda para ${clientName} agendada para ${scheduledDate.toLocaleDateString('pt-BR')}`, String(salespersonId)] 
+    );
+
+    return visitResult.rows[0];
+}
+
 app.patch('/api/sales/:id', async (req, res) => {
   const { id } = req.params;
   const { stage, value } = req.body;
   try {
     let result;
+    
+    // Get current sale state before update to check if we need to schedule
+    const currentSaleRes = await pool.query('SELECT * FROM "Sale" WHERE id = $1', [id]);
+    const currentSale = currentSaleRes.rows[0];
+
     if (stage !== undefined && value !== undefined) {
       result = await pool.query(
         'UPDATE "Sale" SET stage = $1, value = $2, "updatedAt" = NOW() WHERE id = $3 RETURNING *',
@@ -97,9 +155,39 @@ app.patch('/api/sales/:id', async (req, res) => {
         [Number(value), id]
       );
     }
+    
+    // Auto-schedule if moving to 'acompanhamento' and wasn't there before
+    if (stage === 'acompanhamento' && currentSale.stage !== 'acompanhamento') {
+        try {
+            // Check if visit already exists
+            const existingVisit = await pool.query('SELECT * FROM "Visit" WHERE "saleId" = $1', [id]);
+            if (existingVisit.rowCount === 0) {
+                 await scheduleVisit(currentSale.clientName, currentSale.salespersonId, id);
+                 console.log('Auto-scheduled visit for sale:', id);
+            }
+        } catch (err) {
+            console.error('Error auto-scheduling visit:', err);
+            // Don't block the response, just log error
+        }
+    }
+
     res.json(result.rows[0]);
   } catch (error) {
+    console.error('SERVER ERROR UPDATE SALE:', error);
     res.status(400).json({ error: 'Erro ao atualizar venda' });
+  }
+});
+
+// Visit & Notification Routes
+app.post('/api/visits/schedule', async (req, res) => {
+  const { clientName, salespersonId, saleId } = req.body;
+  
+  try {
+    const visit = await scheduleVisit(clientName, salespersonId, saleId);
+    res.json({ visit, message: 'Visita agendada com sucesso!' });
+  } catch (error: any) {
+    console.error('SERVER ERROR SCHEDULE VISIT:', error);
+    res.status(500).json({ error: 'Erro ao agendar visita: ' + error.message });
   }
 });
 
@@ -122,8 +210,6 @@ app.get('/api/sales', async (req, res) => {
     let query = 'SELECT * FROM "Sale"';
     let params = [];
     
-    // Filter if salespersonId is provided (for sellers aiming at themselves, or admins aiming at specific sellers)
-    // We check if it's a valid number to avoid filtering by "all" or empty string
     if (salespersonId && !isNaN(Number(salespersonId))) {
       query += ' WHERE "salespersonId" = $1';
       params.push(Number(salespersonId));
@@ -219,69 +305,6 @@ app.post('/api/general-goal', async (req, res) => {
   } catch (error) {
     console.error('SERVER ERROR SET GOAL:', error);
     res.status(500).json({ error: 'Erro ao definir meta geral' });
-  }
-});
-
-// Visit & Notification Routes
-app.post('/api/visits/schedule', async (req, res) => {
-  const { clientName, salespersonId, saleId } = req.body;
-  
-  try {
-    // Logic: Schedule within next 30 days, max 2 visits per day per salesperson
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + 1); // Start tomorrow
-    
-    let scheduledDate = null;
-    
-    // Check next 30 days
-    for (let i = 0; i < 30; i++) {
-        const checkDate = new Date(startDate);
-        checkDate.setDate(startDate.getDate() + i);
-        
-        // Skip Sundays (0)
-        if (checkDate.getDay() === 0) continue;
-        
-        // Count existing visits for this salesperson on this date
-        // Note: In a real app we'd query by exact date range (start of day to end of day)
-        // For simplicity/demo with SQLite/Postgres date string matching:
-        const dateStr = checkDate.toISOString().split('T')[0];
-        
-        const countResult = await pool.query(
-          'SELECT COUNT(*) FROM "Visit" WHERE "salespersonId" = $1 AND DATE(date) = DATE($2)',
-          [Number(salespersonId), checkDate]
-        );
-        
-        const count = parseInt(countResult.rows[0].count);
-        
-        if (count < 2) {
-            scheduledDate = checkDate;
-            break;
-        }
-    }
-    
-    if (!scheduledDate) {
-        return res.status(400).json({ error: 'Não foi possível agendar uma visita nos próximos 30 dias.' });
-    }
-    
-    // Create Visit
-    const visitId = `visit_${Date.now()}`;
-    const visitResult = await pool.query(
-      'INSERT INTO "Visit" (id, date, "clientName", "salespersonId", "saleId", "createdAt", "updatedAt") VALUES ($1, $2, $3, $4, $5, NOW(), NOW()) RETURNING *',
-      [visitId, scheduledDate, clientName, Number(salespersonId), saleId]
-    );
-    
-    // Create Notification
-    const notifId = `notif_${Date.now()}`;
-    await pool.query(
-      'INSERT INTO "Notification" (id, type, title, description, "userId", "createdAt", read) VALUES ($1, $2, $3, $4, $5, NOW(), false)',
-      [notifId, 'visit', 'Nova Visita Agendada', `Visita pós-venda para ${clientName} agendada para ${scheduledDate.toLocaleDateString('pt-BR')}`, String(salespersonId)] // Using salespersonId as userId for simplicity in this model
-    );
-    
-    res.json({ visit: visitResult.rows[0], message: 'Visita agendada com sucesso!' });
-
-  } catch (error: any) {
-    console.error('SERVER ERROR SCHEDULE VISIT:', error);
-    res.status(500).json({ error: 'Erro ao agendar visita: ' + error.message });
   }
 });
 
