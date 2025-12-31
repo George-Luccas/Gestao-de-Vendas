@@ -93,38 +93,46 @@ export const SalesPipeline: React.FC<SalesPipelineProps> = ({ sales, onMoveSale,
                   </p>
                 </div>
               ) : (
-                stage.id === 'acompanhamento' ? (
-                  <div className="flex flex-col gap-3">
-                    {stageSales.map((sale) => (
-                      <div 
-                        key={sale.id} 
-                        className="glass p-4 rounded-xl border border-white/5 flex items-center justify-between group/item hover:border-white/10 transition-all"
-                      >
-                         <span className="text-sm font-bold text-white/80">{sale.clientName}</span>
-                         <button 
-                            onClick={() => handleScheduleVisits(sale.clientName, sale.id, sale.salespersonId)}
-                            className="bg-primary/10 p-2 rounded-full hover:bg-primary/20 text-primary transition-all"
-                            title="Agendar Visita"
-                         >
-                            <Clock size={14} />
-                         </button>
+                  stage.id === 'acompanhamento' ? (
+                    <div className="flex flex-col gap-3">
+                      {stageSales.map((sale) => (
+                        <div key={sale.id} className="relative group/card">
+                          <SalesCard 
+                            sale={sale} 
+                            onDelete={onDeleteSale} 
+                            onUpdateValue={onUpdateValue} 
+                            onMove={onMoveSale}
+                          />
+                          
+                          {/* Move Controls Hover Overlay */}
+                          <div className="absolute -right-4 top-1/2 -translate-y-1/2 flex-col gap-2 opacity-0 group-hover/card:opacity-100 translate-x-4 group-hover/card:translate-x-0 transition-all z-20 hidden md:flex">
+                            {index > 0 && (
+                              <button 
+                                onClick={() => onMoveSale(sale.id, STAGES[index - 1].id as Stage)}
+                                className="w-10 h-10 rounded-full glass border border-white/10 flex items-center justify-center hover:bg-primary hover:border-primary transition-all shadow-xl"
+                                title="Voltar etapa"
+                              >
+                                <ChevronRight className="rotate-180" size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5 text-center">
+                          <p className="text-xs text-white/40 mb-3">Visitas são agendadas automaticamente ao entrar nesta etapa.</p>
+                          <button 
+                              onClick={onOpenPostSales}
+                              className="w-full py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider text-[10px] hover:bg-emerald-500/20 transition-all flex items-center justify-center gap-2"
+                          >
+                              <span>Ver Agenda de Visitas</span>
+                              <ChevronRight size={12} />
+                          </button>
                       </div>
-                    ))}
-                    
-                    <div className="mt-4 p-4 rounded-xl bg-white/5 border border-white/5 text-center">
-                        <p className="text-xs text-white/40 mb-3">Clique no ícone de relógio para agendar visitas automaticamente.</p>
-                        <button 
-                            onClick={onOpenPostSales}
-                            className="w-full py-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold uppercase tracking-wider text-[10px] hover:bg-emerald-500/20 transition-all flex items-center justify-center gap-2"
-                        >
-                            <span>Ver Agenda de Visitas</span>
-                            <ChevronRight size={12} />
-                        </button>
                     </div>
-                  </div>
-                ) : (
-                  stageSales.map((sale) => (
-                    <div key={sale.id} className="relative group/card">
+                  ) : (
+                    stageSales.map((sale) => (
+                      <div key={sale.id} className="relative group/card">
                       <SalesCard 
                         sale={sale} 
                         onDelete={onDeleteSale} 
