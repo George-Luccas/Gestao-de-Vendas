@@ -21,22 +21,6 @@ const STAGE_ICONS: Record<Stage, React.ReactNode> = {
 
 export const SalesPipeline: React.FC<SalesPipelineProps> = ({ sales, onMoveSale, onDeleteSale, onUpdateValue, onOpenPostSales }) => {
   
-  const handleScheduleVisits = async (clientName: string, saleId: string, salespersonId: number) => {
-      try {
-          const res = await fetch('/api/visits/schedule', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ clientName, salespersonId, saleId })
-          });
-          if (res.ok) {
-              onOpenPostSales();
-          } else {
-              console.error('Failed to schedule visit');
-          }
-      } catch (error) {
-          console.error('Error scheduling visit:', error);
-      }
-  };
 
   return (
     <div className="flex gap-8 overflow-x-auto pb-8 pt-4 custom-scrollbar">
