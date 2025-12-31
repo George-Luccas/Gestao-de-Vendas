@@ -233,9 +233,7 @@ function Dashboard() {
             >
               <SalesCompetition salespeople={salespeople} />
             </motion.div>
-                     
-                  />
-              </motion.div>
+
           ) : activeTab === 'post-sales' ? (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
