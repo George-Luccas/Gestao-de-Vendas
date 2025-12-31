@@ -3,8 +3,7 @@ import {
   LayoutDashboard, 
   Crown, 
   PlusCircle, 
-  Settings, 
-  Search,
+  Settings,
   Target
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -14,15 +13,15 @@ interface BottomNavProps {
   onSelectTab: (id: string) => void;
   onOpenForm: () => void;
   onOpenSettings: () => void;
-  onOpenSearch: () => void;
+  onOpenForm: () => void;
+  onOpenSettings: () => void;
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({ 
   activeTab, 
   onSelectTab, 
   onOpenForm, 
-  onOpenSettings,
-  onOpenSearch
+  onOpenSettings
 }) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 h-20 bg-[#050508]/80 backdrop-blur-xl border-t border-white/5 flex items-center justify-around px-2 z-[40] xl:hidden pb-safe">
