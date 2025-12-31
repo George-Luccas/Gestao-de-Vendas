@@ -4,7 +4,8 @@ import {
   Crown, 
   PlusCircle, 
   Settings, 
-  Search 
+  Search,
+  Target
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -46,10 +47,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       </button>
 
       <NavItem 
-        icon={<Search size={22} />} 
-        label="Busca" 
-        active={false} 
-        onClick={onOpenSearch} 
+        icon={<Target size={22} />} 
+        label="Agenda" 
+        active={activeTab === 'post-sales'} 
+        onClick={() => onSelectTab('post-sales')} 
       />
       <NavItem 
         icon={<Settings size={22} />} 

@@ -100,6 +100,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
               active={activeTab === 'ranking'} 
               onClick={() => onSelectTab('ranking')} 
             />
+            <SidebarItem 
+              icon={<Target size={20} />} 
+              label="Agendamentos" 
+              active={activeTab === 'post-sales'} 
+              onClick={() => onSelectTab('post-sales')} 
+            />
           </nav>
         </section>
 
