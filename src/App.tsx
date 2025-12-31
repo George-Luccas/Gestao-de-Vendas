@@ -316,7 +316,6 @@ function Dashboard() {
           activeTab={activeTab}
           onSelectTab={setActiveTab}
           onOpenForm={() => setIsFormOpen(true)}
-          onOpenSearch={() => setIsSearchOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
         />
 
